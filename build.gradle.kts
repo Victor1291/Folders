@@ -5,4 +5,5 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.ksp) apply false
     id("androidx.navigation.safeargs") version "2.8.5" apply false
+    alias(libs.plugins.android.library) apply false
 }

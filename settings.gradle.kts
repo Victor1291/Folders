@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Folders"
 include(":app")
- 
+include(":domain")
