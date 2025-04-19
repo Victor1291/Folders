@@ -62,7 +62,9 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     ksp(libs.hilt.compiler)
 
+    implementation(libs.preferences)
 
+    implementation(libs.glide)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
