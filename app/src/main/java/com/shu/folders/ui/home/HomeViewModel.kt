@@ -13,11 +13,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.provider.MediaStore
+import android.text.format.DateUtils
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.shu.folders.models.MediaStoreImage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,10 +30,10 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor (application: Application) : AndroidViewModel(application) {
+class HomeViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
 
-    private val _images = MutableLiveData<List<MediaStoreImage>>()
-    val images: LiveData<List<MediaStoreImage>> get() = _images
+    private val _images = MutableLiveData<Map<String, List<MediaStoreImage>>>()
+    val images: LiveData<Map<String, List<MediaStoreImage>>> get() = _images
 
     private var contentObserver: ContentObserver? = null
 
@@ -71,7 +73,7 @@ class HomeViewModel @Inject constructor (application: Application) : AndroidView
         }
     }
 
-    private suspend fun queryImages(): List<MediaStoreImage> {
+    private suspend fun queryImages(): Map<String, List<MediaStoreImage>> {
         val images = mutableListOf<MediaStoreImage>()
 
         /**
@@ -109,7 +111,15 @@ class HomeViewModel @Inject constructor (application: Application) : AndroidView
             val projection = arrayOf(
                 MediaStore.Images.Media._ID,
                 MediaStore.Images.Media.DISPLAY_NAME,
-                MediaStore.Images.Media.DATE_ADDED
+                MediaStore.Images.Media.DATE_ADDED,
+                MediaStore.Images.Media.DATE_MODIFIED,
+                MediaStore.Images.Media.MIME_TYPE,
+                MediaStore.Images.Media.SIZE,
+                MediaStore.Images.Media.DATE_TAKEN,
+                MediaStore.Images.Media.ORIENTATION,
+                MediaStore.Images.Media.HEIGHT,
+                MediaStore.Images.Media.WIDTH,
+                MediaStore.Images.Media.DURATION,
             )
 
             /**
@@ -140,7 +150,7 @@ class HomeViewModel @Inject constructor (application: Application) : AndroidView
              */
             val selectionArgs = arrayOf(
                 // Release day of the G1. :)
-                dateToTimestamp(day = 22, month = 10, year = 2008).toString()
+                dateToTimestamp(day = 10, month = 4, year = 2025).toString()
             )
 
             /**
@@ -197,20 +207,41 @@ class HomeViewModel @Inject constructor (application: Application) : AndroidView
                  */
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
                 val dateModifiedColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_MODIFIED)
+                val dateAdded =
                     cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
                 val displayNameColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
+                val mimeTypeColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.MIME_TYPE)
+                val sizeColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE)
+                val dateTakenColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_TAKEN)
+                val orientationColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.ORIENTATION)
+                val heightColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.HEIGHT)
+                val widthColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.WIDTH)
+                val durationColumn =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DURATION)
 
                 Log.i(TAG, "Found ${cursor.count} images")
                 while (cursor.moveToNext()) {
 
                     // Here we'll use the column indexs that we found above.
                     val id = cursor.getLong(idColumn)
-                    val dateModified =
-                        Date(TimeUnit.SECONDS.toMillis(cursor.getLong(dateModifiedColumn)))
+                    val dateModified = cursor.getLong(dateModifiedColumn)
                     val displayName = cursor.getString(displayNameColumn)
-
-
+                    val mimeType = cursor.getString(mimeTypeColumn)
+                    val dateAdded = Date(TimeUnit.SECONDS.toMillis(cursor.getLong(dateAdded)))
+                    val size = cursor.getLong(sizeColumn)
+                    val dateTaken = cursor.getLong(dateTakenColumn)
+                    val orientation = cursor.getLong(orientationColumn)
+                    val height = cursor.getLong(heightColumn)
+                    val width = cursor.getLong(widthColumn)
+                    val duration = cursor.getLong(durationColumn)
                     /**
                      * This is one of the trickiest parts:
                      *
@@ -240,7 +271,20 @@ class HomeViewModel @Inject constructor (application: Application) : AndroidView
                         id
                     )
 
-                    val image = MediaStoreImage(id, displayName, dateModified, contentUri)
+                    val image = MediaStoreImage(
+                        id = id,
+                        displayName = displayName,
+                        mimeType = mimeType,
+                        dateAdded = dateAdded,
+                        contentUri = contentUri,
+                        dateModified = dateModified,
+                        size = size,
+                        dateTaken = dateTaken,
+                        orientation = orientation.toInt(),
+                        height = height.toInt(),
+                        width = width.toInt(),
+                        duration = duration.toInt()
+                    )
                     images += image
 
                     // For debugging, we'll output the image objects we create to logcat.
@@ -250,7 +294,13 @@ class HomeViewModel @Inject constructor (application: Application) : AndroidView
         }
 
         Log.v(TAG, "Found ${images.size} images")
-        return images
+        return images.groupBy {
+            DateUtils.getRelativeTimeSpanString(
+                it.dateModified,
+                System.currentTimeMillis(),
+                DateUtils.DAY_IN_MILLIS
+            ).toString()
+        }
     }
 
     private suspend fun performDeleteImage(image: MediaStoreImage) {
@@ -342,4 +392,9 @@ private fun ContentResolver.registerObserver(
 }
 
 
-private const val TAG = "MainActivityVM"
+private const val TAG = "viewHomeVM"
+
+sealed class Item {
+    data class HeaderItem(val title: String) : Item()
+    data class MediaStoreImageItem(val mediaStoreImage: MediaStoreImage) : Item()
+}

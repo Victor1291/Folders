@@ -4,32 +4,96 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import androidx.viewbinding.ViewBinding
 import com.shu.folders.R
+import com.shu.folders.databinding.CardItemBinding
+import com.shu.folders.databinding.OneLineItem2Binding
+import com.shu.folders.databinding.RecyclerHeaderItemBinding
+import com.shu.folders.databinding.TwoLineItemBinding
+import com.shu.folders.models.MediaStoreImage
+import com.shu.folders.ui.home.model.HasStringId
+import com.shu.mynews.ui.visitor.adapter.AdapterClickListenerById
 
-class GalleryAdapter (val onClick: (MediaStoreImage) -> Unit) :
-    ListAdapter<MediaStoreImage, ImageViewHolder>(MediaStoreImage.DiffCallback) {
+class GalleryAdapter(
+    private val viewHoldersManager: ViewHoldersManager,
+    private val clickListener: AdapterClickListenerById,
+    private val onClick: (MediaStoreImage) -> Unit
+) : ListAdapter<HasStringId, GalleryAdapter.DataViewHolder>(BaseDiffCallback()) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+    inner class DataViewHolder(
+        private val binding: ViewBinding,
+        private val holder: ViewHolderVisitor
+    ) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(item: HasStringId, clickListener: AdapterClickListenerById) =
+            holder.bind(binding, item, clickListener)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DataViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val view = layoutInflater.inflate(R.layout.gallery_layout, parent, false)
-        return ImageViewHolder(view, onClick)
+        val holder = viewHoldersManager.getViewHolder(viewType)
+        val view = when (holder.layout) {
+
+            R.layout.card_item -> {
+                CardItemBinding.inflate(layoutInflater, parent, false)
+            }
+
+            R.layout.recycler_header_item -> {
+                RecyclerHeaderItemBinding.inflate(layoutInflater, parent, false)
+            }
+
+            R.layout.one_line_item_2 -> {
+                OneLineItem2Binding.inflate(layoutInflater, parent, false)
+
+            }
+
+            R.layout.two_line_item -> {
+                TwoLineItemBinding.inflate(layoutInflater, parent, false)
+            }
+
+            else -> {
+                throw IllegalArgumentException("Wrong type")
+            }
+        }
+
+        layoutInflater.inflate(R.layout.gallery_layout, parent, false)
+        return DataViewHolder(view, holder)
     }
 
-    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
-        val mediaStoreImage = getItem(position)
-        holder.rootView.tag = mediaStoreImage
+    override fun onBindViewHolder(holder: DataViewHolder, position: Int) =
+        holder.bind(getItem(position), clickListener)
 
-        Glide.with(holder.imageView)
-            .load(mediaStoreImage.contentUri)
-            .thumbnail(0.33f)
-            .centerCrop()
-            .into(holder.imageView)
-    }
+    override fun getItemViewType(position: Int): Int =
+        viewHoldersManager.getItemType(getItem(position))
+
+    /* override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+         val mediaStoreImage = getItem(position)
+         holder.rootView.tag = mediaStoreImage
+         when (holder.layout) {
+             is Item.HeaderItem -> {
+
+             }
+             is Item.MediaStoreImageItem -> {
+                 Glide.with(holder.imageView)
+                     .load(mediaStoreImage.mediaStoreImage.contentUri)
+                     .thumbnail(0.33f)
+                     .centerCrop()
+                     .into(holder.imageView)
+             }
+         }
+
+     }*/
 }
 
+class BaseDiffCallback : DiffUtil.ItemCallback<HasStringId>() {
+    override fun areItemsTheSame(oldItem: HasStringId, newItem: HasStringId): Boolean =
+        oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: HasStringId, newItem: HasStringId): Boolean =
+        oldItem == newItem
+}
 
 /**
  * Basic [RecyclerView.ViewHolder] for our gallery.

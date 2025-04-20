@@ -19,6 +19,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.shu.folders.R
 import com.shu.folders.databinding.FragmentHomeBinding
+import com.shu.folders.models.MediaStoreImage
+import com.shu.folders.ui.home.model.CardItem
+import com.shu.folders.ui.home.model.HasStringId
+import com.shu.folders.ui.home.model.RecyclerHeader
+import com.shu.folders.ui.home.viewHolders.CardViewHolder
+import com.shu.folders.ui.home.viewHolders.HeaderViewHolder
+import com.shu.folders.ui.home.viewHolders.OneLine2ViewHolder
+import com.shu.folders.ui.home.viewHolders.TwoStringsViewHolder
+import com.shu.mynews.ui.visitor.adapter.AdapterClickListenerById
 import dagger.hilt.android.AndroidEntryPoint
 
 /** The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission. */
@@ -36,6 +45,8 @@ class HomeFragment : Fragment() {
 
     private val viewModel by viewModels<HomeViewModel>()
 
+    lateinit var viewHoldersManager: ViewHoldersManager
+
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -47,38 +58,64 @@ class HomeFragment : Fragment() {
     ): View {
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        viewHoldersManager = ViewHoldersManagerImpl().apply {
+            registerViewHolder(ItemTypes.HEADER, HeaderViewHolder())
+            registerViewHolder(ItemTypes.ONE_LINE_STRINGS, OneLine2ViewHolder())
+            registerViewHolder(ItemTypes.TWO_STRINGS, TwoStringsViewHolder())
+            registerViewHolder(ItemTypes.CARD, CardViewHolder())
+        }
+
         val root: View = binding.root
 
-        val galleryAdapter = GalleryAdapter { image ->
-            deleteImage(image)
-        }
+        //TODO clicklistener
+        val galleryAdapter =
+            GalleryAdapter(viewHoldersManager, AdapterClickListenerById {}) { image ->
+                // deleteImage(image)
+            }
 
         binding.gallery.also { view ->
             view.layoutManager = GridLayoutManager(requireContext(), 3)
             view.adapter = galleryAdapter
         }
+//TODO приходит map , нужно сделать список из списка
 
-        viewModel.images.observe(viewLifecycleOwner, Observer<List<MediaStoreImage>> { images ->
-            galleryAdapter.submitList(images)
-        })
+        viewModel.images.observe(
+            viewLifecycleOwner,
+            Observer<Map<String, List<MediaStoreImage>>> { images ->
 
-       /* viewModel.permissionNeededForDelete.observe(viewLifecycleOwner, Observer { intentSender ->
-            intentSender?.let {
-                // On Android 10+, if the app doesn't have permission to modify
-                // or delete an item, it returns an `IntentSender` that we can
-                // use here to prompt the user to grant permission to delete (or modify)
-                // the image.
-                startIntentSenderForResult(
-                    intentSender,
-                    DELETE_PERMISSION_REQUEST,
-                    null,
-                    0,
-                    0,
-                    0,
-                    null
-                )
-            }
-        })*/
+                val newList: List<HasStringId> = images.flatMap {
+                    listOf(RecyclerHeader(text = it.key))
+                    it.value.map { value ->
+                        CardItem(
+                            id = value.id.toString(),
+                            image = value.contentUri,
+                            title = value.displayName,
+                            description = value.mimeType,
+                        )
+                    }
+                }
+
+                //val myItems: List<HasStringId> = images.flatMap { listOf(Item.HeaderItem(it.key)) + it.value.map { Item.MediaStoreImageItem(it) } }
+                galleryAdapter.submitList(newList)
+            })
+
+        /* viewModel.permissionNeededForDelete.observe(viewLifecycleOwner, Observer { intentSender ->
+             intentSender?.let {
+                 // On Android 10+, if the app doesn't have permission to modify
+                 // or delete an item, it returns an `IntentSender` that we can
+                 // use here to prompt the user to grant permission to delete (or modify)
+                 // the image.
+                 startIntentSenderForResult(
+                     intentSender,
+                     DELETE_PERMISSION_REQUEST,
+                     null,
+                     0,
+                     0,
+                     0,
+                     null
+                 )
+             }
+         })*/
 
         return root
     }
@@ -87,6 +124,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         showImages()
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -106,13 +144,13 @@ class HomeFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun openMediaStore() {
         showImages()
-      /*  if (haveStoragePermission()) {
-            Log.d("permission", " true Permission")
+        /*  if (haveStoragePermission()) {
+              Log.d("permission", " true Permission")
 
-        } else {
-            Log.d("permission", " false Permission")
-            requestPermission()
-        }*/
+          } else {
+              Log.d("permission", " false Permission")
+              requestPermission()
+          }*/
     }
 
     private fun goToSettings() {

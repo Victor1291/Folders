@@ -11,4 +11,19 @@
     <color name="colorPrimary">#8916A6</color>
     <color name="colorPrimaryDark">#570076</color>
     <color name="colorAccent">#7ba616</color>
+
+    <color name="placeholder_cover">#FF4F4F4F</color>
+    <color name="placeholder">#CF5A5A</color>
+
+    <color name="black_flat">#212121</color>
+    <color name="white_flat">#434332</color>
+    <color name="black_30">#33212121</color>
+    <color name="primaryColor">#929DD8</color>
+    <color name="primaryLightColor">#8187ff</color>
+    <color name="primaryDarkColor">#0A1539</color>
+    <color name="primaryTextColor">#ffffff</color>
+
+    <color name="textPrimaryDark">#1a2226</color>
+    <color name="textPrimaryDark_60">#991a2226</color>
+    <color name="test">#f0f2f4</color>
 </resources>
