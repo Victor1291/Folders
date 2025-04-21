@@ -16,14 +16,15 @@ class CardViewHolder : ViewHolderVisitor {
     override fun bind(binding: ViewBinding, item: Any, clickListener: AdapterClickListenerById) {
         with(binding as CardItemBinding) {
             with(item as CardItem) {
-                cardTitle.text = item.title
+                //cardTitle.text = item.title
                 // txtDiscription.text = item.description
+
+                Glide.with(binding.cardBackgroundImage)
+                    .load(item.image)
+                    .thumbnail(0.33f)
+                    .centerCrop()
+                    .into(binding.cardBackgroundImage)
             }
-            Glide.with(binding.cardBackgroundImage)
-                .load(item.image)
-                .thumbnail(0.33f)
-                .centerCrop()
-                .into(binding.cardBackgroundImage)
         }
     }
 }

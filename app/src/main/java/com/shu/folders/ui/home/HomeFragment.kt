@@ -20,9 +20,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.shu.folders.R
 import com.shu.folders.databinding.FragmentHomeBinding
 import com.shu.folders.models.MediaStoreImage
-import com.shu.folders.ui.home.model.CardItem
 import com.shu.folders.ui.home.model.HasStringId
-import com.shu.folders.ui.home.model.RecyclerHeader
 import com.shu.folders.ui.home.viewHolders.CardViewHolder
 import com.shu.folders.ui.home.viewHolders.HeaderViewHolder
 import com.shu.folders.ui.home.viewHolders.OneLine2ViewHolder
@@ -46,6 +44,7 @@ class HomeFragment : Fragment() {
     private val viewModel by viewModels<HomeViewModel>()
 
     lateinit var viewHoldersManager: ViewHoldersManager
+    //val spanList = mutableListOf<Int>()
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -67,37 +66,7 @@ class HomeFragment : Fragment() {
 
         val root: View = binding.root
 
-        //TODO clicklistener
-        val galleryAdapter =
-            GalleryAdapter(viewHoldersManager, AdapterClickListenerById {}) { image ->
-                // deleteImage(image)
-            }
 
-        binding.gallery.also { view ->
-            view.layoutManager = GridLayoutManager(requireContext(), 3)
-            view.adapter = galleryAdapter
-        }
-//TODO приходит map , нужно сделать список из списка
-
-        viewModel.images.observe(
-            viewLifecycleOwner,
-            Observer<Map<String, List<MediaStoreImage>>> { images ->
-
-                val newList: List<HasStringId> = images.flatMap {
-                    listOf(RecyclerHeader(text = it.key))
-                    it.value.map { value ->
-                        CardItem(
-                            id = value.id.toString(),
-                            image = value.contentUri,
-                            title = value.displayName,
-                            description = value.mimeType,
-                        )
-                    }
-                }
-
-                //val myItems: List<HasStringId> = images.flatMap { listOf(Item.HeaderItem(it.key)) + it.value.map { Item.MediaStoreImageItem(it) } }
-                galleryAdapter.submitList(newList)
-            })
 
         /* viewModel.permissionNeededForDelete.observe(viewLifecycleOwner, Observer { intentSender ->
              intentSender?.let {
@@ -122,7 +91,66 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        showImages()
+        //TODO clicklistener
+        val galleryAdapter =
+            GalleryAdapter(viewHoldersManager, AdapterClickListenerById {}) { image ->
+                // deleteImage(image)
+            }
+
+        binding.gallery.also { view ->
+            val gridLayoutManager = GridLayoutManager(
+                context, 3
+            )
+            gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int {
+                    return viewModel.spanList[position]
+                }
+            }
+            view.layoutManager = gridLayoutManager
+            view.adapter = galleryAdapter
+        }
+//TODO приходит map , нужно сделать список из списка
+
+        viewModel.images.observe(
+            viewLifecycleOwner,
+            Observer<List<HasStringId>> { images ->
+
+                /*  val newList: List<HasStringId> = images.flatMap {
+                      listOf(RecyclerHeader(text = it.key))
+                      it.value.map { value ->
+                          CardItem(
+                              id = value.id.toString(),
+                              image = value.contentUri,
+                              title = value.displayName,
+                              description = value.mimeType,
+                          )
+                      }
+                  }*/
+
+                /*val newList = mutableListOf<HasStringId>()
+                var headerOld = 7
+                images.forEachIndexed { index, mediaStoreImage ->
+                    //Добавляем заголовок , если изменяется //TODO сделать через Calendar
+                    if (headerOld != mediaStoreImage.dateAdded.day) {
+                        newList.add(RecyclerHeader(text = mediaStoreImage.dateAdded.toString()))
+                        headerOld = mediaStoreImage.dateAdded.day
+                        spanList.add(3)
+                    } else {
+                        spanList.add(1)
+                    }
+                    newList.add(
+                        CardItem(
+                            id = mediaStoreImage.id.toString(),
+                            image = mediaStoreImage.contentUri,
+                            title = mediaStoreImage.displayName,
+                            description = mediaStoreImage.mimeType,
+                        )
+                    )
+                }*/
+
+                //val myItems: List<HasStringId> = images.flatMap { listOf(Item.HeaderItem(it.key)) + it.value.map { Item.MediaStoreImageItem(it) } }
+                galleryAdapter.submitList(images)
+            })
     }
 
     override fun onDestroyView() {

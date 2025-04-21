@@ -20,6 +20,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.shu.folders.models.MediaStoreImage
+import com.shu.folders.ui.home.model.CardItem
+import com.shu.folders.ui.home.model.HasStringId
+import com.shu.folders.ui.home.model.RecyclerHeader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,8 +35,10 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
 
-    private val _images = MutableLiveData<Map<String, List<MediaStoreImage>>>()
-    val images: LiveData<Map<String, List<MediaStoreImage>>> get() = _images
+    val spanList = mutableListOf<Int>()
+
+    private val _images = MutableLiveData<List<HasStringId>>()
+    val images: LiveData<List<HasStringId>> get() = _images
 
     private var contentObserver: ContentObserver? = null
 
@@ -45,10 +50,53 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
      * Performs a one shot load of images from [MediaStore.Images.Media.EXTERNAL_CONTENT_URI] into
      * the [_images] [LiveData] above.
      */
+    init {
+        loadImages()
+    }
+
     fun loadImages() {
         viewModelScope.launch {
-            val imageList = queryImages()
-            _images.postValue(imageList)
+            val newList = mutableListOf<HasStringId>()
+            var headerOld = ""
+            queryImages().forEachIndexed { index, mediaStoreImage ->
+                //Добавляем заголовок , если изменяется //TODO сделать через Calendar
+                //Добавляем загаловок и фото карточку из галлереи
+                // spanSize 3 клетки занимает header и одну клетку фото\
+                val date = DateUtils.getRelativeTimeSpanString(
+                    TimeUnit.SECONDS.toMillis(mediaStoreImage.dateAdded),
+                    System.currentTimeMillis(),
+                    DateUtils.DAY_IN_MILLIS
+                ).toString()
+              //  Log.d(TAG, " dateModified = $mediaStoreImage.dateModified ,dateAdded = ${mediaStoreImage.dateAdded} ${Date(TimeUnit.SECONDS.toMillis(mediaStoreImage.dateAdded))} "  )
+                if (headerOld != date) {
+
+                    newList.add(RecyclerHeader(text = date
+                    ))
+                    headerOld = date
+                    spanList.add(3)
+                    spanList.add(1)
+                    newList.add(
+                        CardItem(
+                            id = mediaStoreImage.id.toString(),
+                            image = mediaStoreImage.contentUri,
+                            title = mediaStoreImage.displayName,
+                            description = mediaStoreImage.mimeType,
+                        )
+                    )
+                } else {
+                    spanList.add(1)
+                    newList.add(
+                        CardItem(
+                            id = mediaStoreImage.id.toString(),
+                            image = mediaStoreImage.contentUri,
+                            title = mediaStoreImage.displayName,
+                            description = mediaStoreImage.mimeType,
+                        )
+                    )
+                }
+
+            }
+            _images.postValue(newList)
 
             if (contentObserver == null) {
                 contentObserver = getApplication<Application>().contentResolver.registerObserver(
@@ -73,7 +121,7 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
         }
     }
 
-    private suspend fun queryImages(): Map<String, List<MediaStoreImage>> {
+    private suspend fun queryImages(): List<MediaStoreImage> {
         val images = mutableListOf<MediaStoreImage>()
 
         /**
@@ -208,7 +256,7 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
                 val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
                 val dateModifiedColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_MODIFIED)
-                val dateAdded =
+                val dateAddedColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATE_ADDED)
                 val displayNameColumn =
                     cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME)
@@ -235,7 +283,7 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
                     val dateModified = cursor.getLong(dateModifiedColumn)
                     val displayName = cursor.getString(displayNameColumn)
                     val mimeType = cursor.getString(mimeTypeColumn)
-                    val dateAdded = Date(TimeUnit.SECONDS.toMillis(cursor.getLong(dateAdded)))
+                    val dateAdded =  cursor.getLong(dateAddedColumn)//Date(TimeUnit.SECONDS.toMillis(cursor.getLong(dateAdded)))
                     val size = cursor.getLong(sizeColumn)
                     val dateTaken = cursor.getLong(dateTakenColumn)
                     val orientation = cursor.getLong(orientationColumn)
@@ -294,13 +342,15 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
         }
 
         Log.v(TAG, "Found ${images.size} images")
-        return images.groupBy {
-            DateUtils.getRelativeTimeSpanString(
-                it.dateModified,
-                System.currentTimeMillis(),
-                DateUtils.DAY_IN_MILLIS
-            ).toString()
-        }
+        return images
+
+        /*  .groupBy {
+          DateUtils.getRelativeTimeSpanString(
+              it.dateModified,
+              System.currentTimeMillis(),
+              DateUtils.DAY_IN_MILLIS
+          ).toString()
+      }*/
     }
 
     private suspend fun performDeleteImage(image: MediaStoreImage) {

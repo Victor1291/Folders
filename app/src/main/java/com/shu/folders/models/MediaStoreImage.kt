@@ -30,7 +30,7 @@ data class MediaStoreImage(
     val id: Long,
     val displayName: String,
     val mimeType: String,
-    val dateAdded: Date,
+    val dateAdded: Long,
     val contentUri: Uri,
     val dateModified: Long,
     val size: Long,
