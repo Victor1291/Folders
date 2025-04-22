@@ -8,11 +8,16 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
+import androidx.transition.TransitionInflater
 import androidx.viewpager2.widget.ViewPager2
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING
 import com.shu.folders.R
 import com.shu.folders.databinding.FragmentOnBoardingBinding
 import com.shu.folders.models.MediaStoreImage
@@ -36,6 +41,18 @@ class OnBoardingFragment : Fragment() {
     ): View? {
         _binding = FragmentOnBoardingBinding.inflate(inflater, container, false)
 
+        ViewCompat.setTransitionName(binding.cardView, "cardView${args.data.position}")
+
+     /*   sharedElementEnterTransition =
+            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
+
+        *//*     ChangeBounds().apply {
+             duration = 750
+         }*//*
+        sharedElementReturnTransition =
+            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
+*/
+
         return binding.root
     }
 
@@ -57,30 +74,48 @@ class OnBoardingFragment : Fragment() {
             onboardingItems = onboardingItems
         )
         binding.viewpager.adapter = onboardingItemAdapter
-        binding.viewpager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
 
-           /* override fun onPageScrolled(
+        //SmoothScroll false - disable scroll animation
+        binding.viewpager.setCurrentItem(page,false)
+
+        /*binding.viewpager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+
+            override fun onPageScrolled(
                 position: Int,
                 positionOffset: Float,
                 positionOffsetPixels: Int
             ) {
                 super.onPageScrolled(page, positionOffset, positionOffsetPixels)
+               // onPageScrollStateChanged(SCROLL_STATE_IDLE)
 
+               // onPageScrollStateChanged(SCROLL_STATE_SETTLING)
+
+            //}
+
+            override fun onPageScrollStateChanged(state: Int) {
+                super.onPageScrollStateChanged(state)
+              //  onPageScrollStateChanged(SCROLL_STATE_DRAGGING)
             }
-*/
+
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
+
                 //  setCurrentIndicator(position)
-            }
-        })
-      /*  (binding.viewpager.getChildAt(0) as RecyclerView).overScrollMode =
-            RecyclerView.OVER_SCROLL_NEVER*/
+            //}
+        })*/
+       /* (binding.viewpager.getChildAt(0) as RecyclerView) = false */
 
         //val recyclerView = binding.viewpager.getChildAt(0) as RecyclerView
 
        // recyclerView.layoutManager?.scrollToPosition(page)
-        binding.viewpager.currentItem = page
-        val itemCount = binding.viewpager.adapter?.itemCount ?: 0
+      /*  binding.viewpager.apply {
+            currentItem = page
+            //registerOnPageChangeCallback(pageChangeCallback)
+            (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+        }*/
+
+
+      //  val itemCount = binding.viewpager.adapter?.itemCount ?: 0
 // attach scroll listener
        /* recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
             override fun onScrolled(

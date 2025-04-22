@@ -2,6 +2,7 @@ package com.shu.folders.ui.gallery
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.shu.folders.databinding.OnboardingItemContainerBinding
@@ -17,6 +18,7 @@ class OnboardingItemAdapter(private val onboardingItems: List<MediaStoreImage>) 
         return OnboardingItemViewHolder(binding)
     }
 
+
     override fun onBindViewHolder(holder: OnboardingItemViewHolder, position: Int) {
         holder.bind(onboardingItems[position])
     }
@@ -28,12 +30,16 @@ class OnboardingItemAdapter(private val onboardingItems: List<MediaStoreImage>) 
     inner class OnboardingItemViewHolder(val binding: OnboardingItemContainerBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(onboardingItem: MediaStoreImage) {
+
+        fun bind(item: MediaStoreImage) {
+
             Glide.with(binding.imageOnboarding)
-                .load(onboardingItem.contentUri)
+                .load(item.contentUri)
                 .thumbnail(0.33f)
                 .centerCrop()
                 .into(binding.imageOnboarding)
+
+
 
             //binding.imageOnboarding.setImageResource(onboardingItem.image)
         }

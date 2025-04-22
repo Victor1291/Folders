@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -44,15 +45,11 @@ private const val DELETE_PERMISSION_REQUEST = 0x1033
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
 
     private val viewModel by viewModels<HomeViewModel>()
 
-    lateinit var viewHoldersManager: ViewHoldersManager
-    //val spanList = mutableListOf<Int>()
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
-    private val binding get() = _binding!!
+    private lateinit var viewHoldersManager: ViewHoldersManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -98,20 +95,29 @@ class HomeFragment : Fragment() {
         val galleryAdapter =
             GalleryAdapter(viewHoldersManager, AdapterClickListenerById { clickState ->
 
-               // Log.d("click Fragment", "click  ${clickState.id} , ${clickState.position} ")
+                // Log.d("click Fragment", "click  ${clickState.id} , ${clickState.position} ")
                 if (clickState.itemTypes == CARD) {
-                    Log.d("click Fragment", "click in adapter ${clickState.id} , ${clickState.position} ")
-                    findNavController().navigate(
-                        HomeFragmentDirections.actionNavigationHomeToOnBoardingFragment(
-                            ViewPagerItem(
-                                listImages = viewModel.getImages(),
-                                position = clickState.position
-                            )
-                        )
+                    Log.d(
+                        "click Fragment",
+                        "click in adapter ${clickState.id} , ${clickState.position} "
                     )
+                    clickState.extras?.let { extras ->
+                        findNavController().navigate(
+                            HomeFragmentDirections.actionNavigationHomeToOnBoardingFragment(
+                                ViewPagerItem(
+                                    listImages = viewModel.getImages(),
+                                    position = clickState.position,
+                                )
+                            ),
+                            extras
+                        )
+                    }
                 }
                 if (clickState.itemTypes == HEADER) {
-                    Log.d("click Fragment", "click header in adapter ${clickState.id} , ${clickState.position} ")
+                    Log.d(
+                        "click Fragment",
+                        "click header in adapter ${clickState.id} , ${clickState.position} "
+                    )
                 }
             })
 

@@ -7,5 +7,5 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class ViewPagerItem(
     val listImages: List<MediaStoreImage>,
-    val position: Int
+    val position: Int,
 ): Parcelable
