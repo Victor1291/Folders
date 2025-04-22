@@ -18,14 +18,16 @@ package com.shu.folders.models
 
 import android.content.ContentUris
 import android.net.Uri
+import android.os.Parcelable
 import android.provider.MediaStore
 import androidx.recyclerview.widget.DiffUtil
 import com.shu.folders.ui.home.Item
-import java.util.Date
+import kotlinx.parcelize.Parcelize
 
 /**
  * Simple data class to hold information about an image included in the device's MediaStore.
  */
+@Parcelize
 data class MediaStoreImage(
     val id: Long,
     val displayName: String,
@@ -39,8 +41,8 @@ data class MediaStoreImage(
     val height: Int,
     val width: Int,
     val duration: Int,
-) {
-    companion object {
+): Parcelable {
+    /*companion object {
         val DiffCallback = object : DiffUtil.ItemCallback<Item>() {
             override fun areItemsTheSame(oldItem: Item, newItem: Item) =
                 if (oldItem is Item.HeaderItem && newItem is Item.HeaderItem)
@@ -56,7 +58,7 @@ data class MediaStoreImage(
                     oldItem == newItem
                 else false
         }
-    }
+    }*/
 
     override fun toString(): String {
         return "  id = $id, displayName = $displayName, mimeType = $mimeType, dateModified = $dateModified, dateAdded = $dateAdded, contentUri = $contentUri, size = $size, dateTaken = $dateTaken, orientation = $orientation, height = $height, width = $width, duration = $duration"

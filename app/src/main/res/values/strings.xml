@@ -14,4 +14,5 @@
     <string name="delete_dialog_positive">Delete</string>
     <string name="delete_dialog_negative">Cancel</string>
     <string name="image">image</string>
+    <string name="date_sample">30 april 2025</string>
 </resources>

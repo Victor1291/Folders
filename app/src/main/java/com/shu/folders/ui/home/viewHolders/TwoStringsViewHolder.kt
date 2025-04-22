@@ -5,7 +5,7 @@ import com.shu.folders.R
 import com.shu.folders.databinding.TwoLineItemBinding
 import com.shu.folders.ui.home.ViewHolderVisitor
 import com.shu.folders.ui.home.model.TwoStringsItem
-import com.shu.mynews.ui.visitor.adapter.AdapterClickListenerById
+import com.shu.folders.ui.home.AdapterClickListenerById
 
 class TwoStringsViewHolder : ViewHolderVisitor {
 
@@ -13,7 +13,7 @@ class TwoStringsViewHolder : ViewHolderVisitor {
 
     override fun acceptBinding(item: Any): Boolean = item is TwoStringsItem
 
-    override fun bind(binding: ViewBinding, item: Any, clickListener: AdapterClickListenerById) {
+    override fun bind(binding: ViewBinding, item: Any, clickListener: AdapterClickListenerById, position: Int) {
         with((binding as TwoLineItemBinding)) {
             with((item as TwoStringsItem)) {
                 text1.text = item.caption

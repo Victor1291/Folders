@@ -5,7 +5,7 @@ import com.shu.folders.R
 import com.shu.folders.databinding.OneLineItem2Binding
 import com.shu.folders.ui.home.ViewHolderVisitor
 import com.shu.folders.ui.home.model.OneLineItem2
-import com.shu.mynews.ui.visitor.adapter.AdapterClickListenerById
+import com.shu.folders.ui.home.AdapterClickListenerById
 
 
 class OneLine2ViewHolder : ViewHolderVisitor {
@@ -16,7 +16,8 @@ class OneLine2ViewHolder : ViewHolderVisitor {
     override fun bind(
         binding: ViewBinding,
         item: Any,
-        clickListener: AdapterClickListenerById
+        clickListener: AdapterClickListenerById,
+        position: Int
     ) {
         with((binding as OneLineItem2Binding)) {
             with(item as OneLineItem2) {

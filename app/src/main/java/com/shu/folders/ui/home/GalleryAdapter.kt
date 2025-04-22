@@ -15,20 +15,19 @@ import com.shu.folders.databinding.RecyclerHeaderItemBinding
 import com.shu.folders.databinding.TwoLineItemBinding
 import com.shu.folders.models.MediaStoreImage
 import com.shu.folders.ui.home.model.HasStringId
-import com.shu.mynews.ui.visitor.adapter.AdapterClickListenerById
 
 class GalleryAdapter(
     private val viewHoldersManager: ViewHoldersManager,
     private val clickListener: AdapterClickListenerById,
-    private val onClick: (MediaStoreImage) -> Unit
+   // private val onClick: (MediaStoreImage) -> Unit
 ) : ListAdapter<HasStringId, GalleryAdapter.DataViewHolder>(BaseDiffCallback()) {
 
     inner class DataViewHolder(
         private val binding: ViewBinding,
-        private val holder: ViewHolderVisitor
+        private val holder: ViewHolderVisitor,
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: HasStringId, clickListener: AdapterClickListenerById) =
-            holder.bind(binding, item, clickListener)
+        fun bind(item: HasStringId, clickListener: AdapterClickListenerById, position: Int) =
+            holder.bind(binding, item, clickListener, position)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DataViewHolder {
@@ -63,7 +62,7 @@ class GalleryAdapter(
     }
 
     override fun onBindViewHolder(holder: DataViewHolder, position: Int) =
-        holder.bind(getItem(position), clickListener)
+        holder.bind(getItem(position), clickListener, position)
 
     override fun getItemViewType(position: Int): Int =
         viewHoldersManager.getItemType(getItem(position))

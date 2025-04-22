@@ -1,6 +1,8 @@
-package com.shu.mynews.ui.visitor.adapter
+package com.shu.folders.ui.home
+
+import com.shu.folders.models.StateClick
 
 
-class AdapterClickListenerById(val clickListener: (id: String) -> Unit) {
-    fun onClick(id: String) = clickListener(id)
+class AdapterClickListenerById(val clickListener: (stateClick: StateClick) -> Unit) {
+    fun onClick(stateClick: StateClick) = clickListener(stateClick)
 }

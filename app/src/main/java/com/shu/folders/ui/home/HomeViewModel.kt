@@ -28,14 +28,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
 
+    //TODO Assisted Inject
     val spanList = mutableListOf<Int>()
+
+    private val _span = MutableLiveData<List<Int>>()
+    val span: LiveData<List<Int>> get() = _span
+
+    private val _imagesList = mutableListOf<MediaStoreImage>()
 
     private val _images = MutableLiveData<List<HasStringId>>()
     val images: LiveData<List<HasStringId>> get() = _images
@@ -54,11 +59,17 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
         loadImages()
     }
 
+    //стейт меняется , меняется позиция , а в ресайклере не обновились позиции при добавлении фото в галлерею
+    // сделать рестарт адаптера
     fun loadImages() {
         viewModelScope.launch {
             val newList = mutableListOf<HasStringId>()
             var headerOld = ""
+            _imagesList.clear()
             queryImages().forEachIndexed { index, mediaStoreImage ->
+                //создаём коллекцию для передачи во ViewPager
+                _imagesList.add(mediaStoreImage)
+
                 //Добавляем заголовок , если изменяется //TODO сделать через Calendar
                 //Добавляем загаловок и фото карточку из галлереи
                 // spanSize 3 клетки занимает header и одну клетку фото\
@@ -67,36 +78,29 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
                     System.currentTimeMillis(),
                     DateUtils.DAY_IN_MILLIS
                 ).toString()
-              //  Log.d(TAG, " dateModified = $mediaStoreImage.dateModified ,dateAdded = ${mediaStoreImage.dateAdded} ${Date(TimeUnit.SECONDS.toMillis(mediaStoreImage.dateAdded))} "  )
+                //  Log.d(TAG, " dateModified = $mediaStoreImage.dateModified ,dateAdded = ${mediaStoreImage.dateAdded} ${Date(TimeUnit.SECONDS.toMillis(mediaStoreImage.dateAdded))} "  )
                 if (headerOld != date) {
-
-                    newList.add(RecyclerHeader(text = date
-                    ))
+                    _imagesList.add(mediaStoreImage)
+                    newList.add(
+                        RecyclerHeader(
+                            text = date
+                        )
+                    )
                     headerOld = date
                     spanList.add(3)
-                    spanList.add(1)
-                    newList.add(
-                        CardItem(
-                            id = mediaStoreImage.id.toString(),
-                            image = mediaStoreImage.contentUri,
-                            title = mediaStoreImage.displayName,
-                            description = mediaStoreImage.mimeType,
-                        )
-                    )
-                } else {
-                    spanList.add(1)
-                    newList.add(
-                        CardItem(
-                            id = mediaStoreImage.id.toString(),
-                            image = mediaStoreImage.contentUri,
-                            title = mediaStoreImage.displayName,
-                            description = mediaStoreImage.mimeType,
-                        )
-                    )
                 }
-
+                spanList.add(1)
+                newList.add(
+                    CardItem(
+                        id = mediaStoreImage.id.toString(),
+                        image = mediaStoreImage.contentUri,
+                        title = mediaStoreImage.displayName,
+                        description = mediaStoreImage.mimeType,
+                    )
+                )
             }
             _images.postValue(newList)
+            _span.postValue(spanList)
 
             if (contentObserver == null) {
                 contentObserver = getApplication<Application>().contentResolver.registerObserver(
@@ -112,6 +116,10 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
         viewModelScope.launch {
             performDeleteImage(image)
         }
+    }
+
+    fun getImages(): List<MediaStoreImage> {
+        return _imagesList.toList()
     }
 
     fun deletePendingImage() {
@@ -283,7 +291,8 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
                     val dateModified = cursor.getLong(dateModifiedColumn)
                     val displayName = cursor.getString(displayNameColumn)
                     val mimeType = cursor.getString(mimeTypeColumn)
-                    val dateAdded =  cursor.getLong(dateAddedColumn)//Date(TimeUnit.SECONDS.toMillis(cursor.getLong(dateAdded)))
+                    val dateAdded =
+                        cursor.getLong(dateAddedColumn)//Date(TimeUnit.SECONDS.toMillis(cursor.getLong(dateAdded)))
                     val size = cursor.getLong(sizeColumn)
                     val dateTaken = cursor.getLong(dateTakenColumn)
                     val orientation = cursor.getLong(orientationColumn)

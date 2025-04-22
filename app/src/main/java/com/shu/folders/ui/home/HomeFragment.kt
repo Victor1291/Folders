@@ -6,6 +6,7 @@ import android.content.IntentSender
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,17 +16,20 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.shu.folders.R
 import com.shu.folders.databinding.FragmentHomeBinding
 import com.shu.folders.models.MediaStoreImage
+import com.shu.folders.models.ViewPagerItem
+import com.shu.folders.ui.home.ItemTypes.CARD
+import com.shu.folders.ui.home.ItemTypes.HEADER
 import com.shu.folders.ui.home.model.HasStringId
 import com.shu.folders.ui.home.viewHolders.CardViewHolder
 import com.shu.folders.ui.home.viewHolders.HeaderViewHolder
 import com.shu.folders.ui.home.viewHolders.OneLine2ViewHolder
 import com.shu.folders.ui.home.viewHolders.TwoStringsViewHolder
-import com.shu.mynews.ui.visitor.adapter.AdapterClickListenerById
 import dagger.hilt.android.AndroidEntryPoint
 
 /** The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission. */
@@ -67,7 +71,6 @@ class HomeFragment : Fragment() {
         val root: View = binding.root
 
 
-
         /* viewModel.permissionNeededForDelete.observe(viewLifecycleOwner, Observer { intentSender ->
              intentSender?.let {
                  // On Android 10+, if the app doesn't have permission to modify
@@ -93,9 +96,24 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         //TODO clicklistener
         val galleryAdapter =
-            GalleryAdapter(viewHoldersManager, AdapterClickListenerById {}) { image ->
-                // deleteImage(image)
-            }
+            GalleryAdapter(viewHoldersManager, AdapterClickListenerById { clickState ->
+
+               // Log.d("click Fragment", "click  ${clickState.id} , ${clickState.position} ")
+                if (clickState.itemTypes == CARD) {
+                    Log.d("click Fragment", "click in adapter ${clickState.id} , ${clickState.position} ")
+                    findNavController().navigate(
+                        HomeFragmentDirections.actionNavigationHomeToOnBoardingFragment(
+                            ViewPagerItem(
+                                listImages = viewModel.getImages(),
+                                position = clickState.position
+                            )
+                        )
+                    )
+                }
+                if (clickState.itemTypes == HEADER) {
+                    Log.d("click Fragment", "click header in adapter ${clickState.id} , ${clickState.position} ")
+                }
+            })
 
         binding.gallery.also { view ->
             val gridLayoutManager = GridLayoutManager(
@@ -109,46 +127,11 @@ class HomeFragment : Fragment() {
             view.layoutManager = gridLayoutManager
             view.adapter = galleryAdapter
         }
-//TODO приходит map , нужно сделать список из списка
 
         viewModel.images.observe(
             viewLifecycleOwner,
             Observer<List<HasStringId>> { images ->
 
-                /*  val newList: List<HasStringId> = images.flatMap {
-                      listOf(RecyclerHeader(text = it.key))
-                      it.value.map { value ->
-                          CardItem(
-                              id = value.id.toString(),
-                              image = value.contentUri,
-                              title = value.displayName,
-                              description = value.mimeType,
-                          )
-                      }
-                  }*/
-
-                /*val newList = mutableListOf<HasStringId>()
-                var headerOld = 7
-                images.forEachIndexed { index, mediaStoreImage ->
-                    //Добавляем заголовок , если изменяется //TODO сделать через Calendar
-                    if (headerOld != mediaStoreImage.dateAdded.day) {
-                        newList.add(RecyclerHeader(text = mediaStoreImage.dateAdded.toString()))
-                        headerOld = mediaStoreImage.dateAdded.day
-                        spanList.add(3)
-                    } else {
-                        spanList.add(1)
-                    }
-                    newList.add(
-                        CardItem(
-                            id = mediaStoreImage.id.toString(),
-                            image = mediaStoreImage.contentUri,
-                            title = mediaStoreImage.displayName,
-                            description = mediaStoreImage.mimeType,
-                        )
-                    )
-                }*/
-
-                //val myItems: List<HasStringId> = images.flatMap { listOf(Item.HeaderItem(it.key)) + it.value.map { Item.MediaStoreImageItem(it) } }
                 galleryAdapter.submitList(images)
             })
     }
