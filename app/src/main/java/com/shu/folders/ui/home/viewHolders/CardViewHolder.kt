@@ -38,11 +38,11 @@ class CardViewHolder : ViewHolderVisitor {
                     .centerCrop()
                     .into(binding.cardBackgroundImage)
 
-                ViewCompat.setTransitionName(binding.cardView, "cardView${position}")
+                ViewCompat.setTransitionName(binding.cardBackgroundImage , "image_${position}")
 
 
                 extras = FragmentNavigatorExtras(
-                    binding.cardView to binding.cardView.transitionName,
+                    binding.cardBackgroundImage to binding.cardBackgroundImage.transitionName,
                 )
 
                 binding.cardView.setOnClickListener {

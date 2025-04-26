@@ -37,6 +37,7 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
     //TODO Assisted Inject
     val spanList = mutableListOf<Int>()
 
+    //TODO span
     private val _span = MutableLiveData<List<Int>>()
     val span: LiveData<List<Int>> get() = _span
 

@@ -21,6 +21,7 @@ class OnboardingItemAdapter(private val onboardingItems: List<MediaStoreImage>) 
 
     override fun onBindViewHolder(holder: OnboardingItemViewHolder, position: Int) {
         holder.bind(onboardingItems[position])
+        ViewCompat.setTransitionName(holder.itemView, "image_$position")
     }
 
     override fun getItemCount(): Int {
@@ -32,11 +33,15 @@ class OnboardingItemAdapter(private val onboardingItems: List<MediaStoreImage>) 
 
 
         fun bind(item: MediaStoreImage) {
+            // Устанавливаем такое же transitionName, как в RecyclerView
+
+
 
             Glide.with(binding.imageOnboarding)
                 .load(item.contentUri)
-                .thumbnail(0.33f)
-                .centerCrop()
+               // .thumbnail(0.33f)
+                //.centerCrop()
+                .centerInside()
                 .into(binding.imageOnboarding)
 
 
@@ -45,6 +50,4 @@ class OnboardingItemAdapter(private val onboardingItems: List<MediaStoreImage>) 
         }
 
     }
-
-
 }

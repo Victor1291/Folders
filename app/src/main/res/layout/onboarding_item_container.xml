@@ -7,11 +7,11 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <ImageView
+    <com.shu.folders.ui.custom.ImageViewZoom2
         android:id="@+id/imageOnboarding"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:adjustViewBounds="true"
+        android:scaleType="centerInside"
         android:contentDescription="@string/app_name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
