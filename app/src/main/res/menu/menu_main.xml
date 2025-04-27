@@ -1,0 +1,35 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.shu.grafficswork.MainActivity">
+
+
+    <item
+        android:id="@+id/action_share"
+        android:orderInCategory="100"
+        android:icon="@drawable/baseline_share_24"
+        android:title="@string/share"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:icon="@drawable/baseline_settings_24"
+        android:title="@string/settings"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_trash"
+        android:orderInCategory="100"
+        android:icon="@drawable/baseline_restore_from_trash_24"
+        android:title="@string/trash"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_favorite"
+        android:orderInCategory="100"
+        android:icon="@drawable/baseline_star_border_24"
+        android:title="@string/favorite"
+        app:showAsAction="always" />
+
+</menu>

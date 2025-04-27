@@ -8,15 +8,20 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -46,6 +51,8 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
+
+    private val menuHost: MenuHost get() = requireActivity()
 
     private val viewModel by viewModels<HomeViewModel>()
 
@@ -91,6 +98,57 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        menuHost.addMenuProvider(object : MenuProvider { // Добавляем MenuProvider
+            override fun onPrepareMenu(menu: Menu) // Вызывается перед отрисовкой меню
+            {
+            }
+
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                // Надуваем fragment_menu и мержим с прошлым menu
+                menuInflater.inflate(R.menu.menu_main, menu)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                // Пользователь кликнул на элемент меню
+                // return true — не нужно передавать нажатие другому провайдеру
+                // return false — передаем нажатие следующему провайдеру
+
+                return when (menuItem.itemId) {
+                    R.id.action_settings -> {
+                        Toast.makeText(context, "Click on the Settings", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+
+                    R.id.action_share -> {
+
+                        Toast.makeText(context, "Mode Macros", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+
+                    R.id.action_trash -> {
+
+                        Toast.makeText(context, "Mode Edit", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+
+                    R.id.action_favorite -> {
+
+                        Toast.makeText(context, "Mode Preview", Toast.LENGTH_SHORT).show()
+                        true
+                    }
+
+
+                    else -> true
+                }
+            }
+
+            override fun onMenuClosed(menu: Menu) // Меню закрыто
+            {
+            }
+
+        }, viewLifecycleOwner)
+
         //TODO clicklistener
         val galleryAdapter =
             GalleryAdapter(viewHoldersManager, AdapterClickListenerById { clickState ->
@@ -136,7 +194,8 @@ class HomeFragment : Fragment() {
 
         viewModel.images.observe(
             viewLifecycleOwner,
-            Observer<List<HasStringId>> { images ->
+            Observer<List<HasStringId>>
+            { images ->
 
                 galleryAdapter.submitList(images)
             })

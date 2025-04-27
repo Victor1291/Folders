@@ -21,6 +21,7 @@ class ImageViewZoom2 @JvmOverloads constructor(
 
 
     // These matrices will be used to scale points of the image
+    //зачем 2 matrix?
     private var matrix: Matrix = Matrix()
     private var savedMatrix: Matrix = Matrix()
     private var mode = NONE

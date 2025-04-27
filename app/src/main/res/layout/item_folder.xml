@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/constraintLayout"
+    style="@style/Platform.MaterialComponents"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="4.dp"
+    android:layout_margin="4.dp"
+    android:background="@drawable/folder_background"
+    android:layout_marginHorizontal="1.dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_day"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:translationY="-3dp"
+        android:layout_gravity="center"
+        android:text="12"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!--  android:background="?android:attr/fastScrollPreviewBackgroundLeft"-->
+
+
+    <TextView
+        android:id="@+id/tv_worker_one"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elegantTextHeight="false"
+        android:layout_gravity="center"
+        android:text="Surnametwo B."
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_worker_two"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Surnametwo B."
+        android:textSize="16sp"
+        android:textStyle="italic|bold" />
+
+</LinearLayout>
