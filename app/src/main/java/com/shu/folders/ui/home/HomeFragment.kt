@@ -21,7 +21,9 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -31,12 +33,12 @@ import com.shu.folders.models.MediaStoreImage
 import com.shu.folders.models.ViewPagerItem
 import com.shu.folders.ui.home.ItemTypes.CARD
 import com.shu.folders.ui.home.ItemTypes.HEADER
-import com.shu.folders.ui.home.model.HasStringId
 import com.shu.folders.ui.home.viewHolders.CardViewHolder
 import com.shu.folders.ui.home.viewHolders.HeaderViewHolder
 import com.shu.folders.ui.home.viewHolders.OneLine2ViewHolder
 import com.shu.folders.ui.home.viewHolders.TwoStringsViewHolder
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 /** The request code for requesting [Manifest.permission.READ_EXTERNAL_STORAGE] permission. */
 private const val READ_EXTERNAL_STORAGE_REQUEST = 0x1045
@@ -92,12 +94,6 @@ class HomeFragment : Fragment() {
                  )
              }
          })*/
-
-        return root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         menuHost.addMenuProvider(object : MenuProvider { // Добавляем MenuProvider
             override fun onPrepareMenu(menu: Menu) // Вызывается перед отрисовкой меню
@@ -183,22 +179,46 @@ class HomeFragment : Fragment() {
             val gridLayoutManager = GridLayoutManager(
                 context, 3
             )
-            gridLayoutManager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int {
-                    return viewModel.spanList[position]
+            gridLayoutManager.spanSizeLookup =
+                object : GridLayoutManager.SpanSizeLookup() {
+                    override fun getSpanSize(position: Int): Int {
+                        return viewModel.spanList[position]
+                    }
                 }
-            }
             view.layoutManager = gridLayoutManager
             view.adapter = galleryAdapter
         }
 
-        viewModel.images.observe(
-            viewLifecycleOwner,
-            Observer<List<HasStringId>>
-            { images ->
 
-                galleryAdapter.submitList(images)
-            })
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.images.collect { uiState ->
+                    when (uiState) {
+
+                        is UiStateHome.Error -> {
+                            Log.e("frHome", "State.Error")
+                        }
+
+                        UiStateHome.Loading -> {
+                            Log.e("frHome", "State.Loading")
+
+                        }
+
+                        is UiStateHome.Success -> {
+                            Log.e("frHome", "State.Success")
+                            galleryAdapter.submitList(uiState.images)
+                        }
+
+                    }
+                }
+            }
+        }
+
+        return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onDestroyView() {

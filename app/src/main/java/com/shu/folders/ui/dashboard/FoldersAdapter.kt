@@ -1,9 +1,7 @@
 package com.shu.folders.ui.dashboard
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.navigation.fragment.FragmentNavigator
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,34 +10,25 @@ import com.shu.folders.models.Folder
 
 class FoldersAdapter(
     private val onClickButton: (String) -> Unit,
-) : ListAdapter<Folder, PhotoViewHolder>(ItemDiffCallback()) {
+) : ListAdapter<Folder, FolderViewHolder>(ItemDiffCallback()) {
 
-    private var data: List<Folder> = emptyList()
 
-    fun setData(data: List<Folder>) {
-        this.data = data
-    }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
         val binding = ItemFolderBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
         )
-        return PhotoViewHolder(binding, onClickButton)
+        return FolderViewHolder(binding, onClickButton)
     }
 
-    override fun getItemCount(): Int {
-        return data.size
-    }
-
-    override fun onBindViewHolder(holder: PhotoViewHolder, position: Int) {
-        val card = data[position]
+    override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
+        val card = getItem(position)
         holder.bind(card)
     }
 }
 
-class PhotoViewHolder(
+class FolderViewHolder(
     private val binding: ItemFolderBinding,
     private val onClickButton: (String) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {

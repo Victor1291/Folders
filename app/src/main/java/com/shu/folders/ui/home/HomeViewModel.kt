@@ -25,11 +25,25 @@ import com.shu.folders.ui.home.model.HasStringId
 import com.shu.folders.ui.home.model.RecyclerHeader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
+
+sealed interface UiStateHome {
+    data class Success(
+        val images: List<HasStringId>,
+        val span: List<Int>,
+    ) : UiStateHome
+
+    data class Error(val message: String) : UiStateHome
+    data object Loading : UiStateHome
+}
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(application: Application) : AndroidViewModel(application) {
@@ -43,8 +57,8 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
 
     private val _imagesList = mutableListOf<MediaStoreImage>()
 
-    private val _images = MutableLiveData<List<HasStringId>>()
-    val images: LiveData<List<HasStringId>> get() = _images
+    private var _images = MutableStateFlow<UiStateHome>(UiStateHome.Loading)
+    val images: StateFlow<UiStateHome> = _images.asStateFlow()
 
     private var contentObserver: ContentObserver? = null
 
@@ -64,51 +78,60 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
     // сделать рестарт адаптера
     fun loadImages() {
         viewModelScope.launch {
-            val newList = mutableListOf<HasStringId>()
-            var headerOld = ""
-            _imagesList.clear()
-            queryImages().forEachIndexed { index, mediaStoreImage ->
-                //создаём коллекцию для передачи во ViewPager
-                _imagesList.add(mediaStoreImage)
-
-                //Добавляем заголовок , если изменяется //TODO сделать через Calendar
-                //Добавляем загаловок и фото карточку из галлереи
-                // spanSize 3 клетки занимает header и одну клетку фото\
-                val date = DateUtils.getRelativeTimeSpanString(
-                    TimeUnit.SECONDS.toMillis(mediaStoreImage.dateAdded),
-                    System.currentTimeMillis(),
-                    DateUtils.DAY_IN_MILLIS
-                ).toString()
-                //  Log.d(TAG, " dateModified = $mediaStoreImage.dateModified ,dateAdded = ${mediaStoreImage.dateAdded} ${Date(TimeUnit.SECONDS.toMillis(mediaStoreImage.dateAdded))} "  )
-                if (headerOld != date) {
+            try {
+                val newList = mutableListOf<HasStringId>()
+                var headerOld = ""
+                _imagesList.clear()
+                queryImages().forEachIndexed { index, mediaStoreImage ->
+                    //создаём коллекцию для передачи во ViewPager
                     _imagesList.add(mediaStoreImage)
+
+                    //Добавляем заголовок , если изменяется //TODO сделать через Calendar
+                    //Добавляем загаловок и фото карточку из галлереи
+                    // spanSize 3 клетки занимает header и одну клетку фото\
+                    val date = DateUtils.getRelativeTimeSpanString(
+                        TimeUnit.SECONDS.toMillis(mediaStoreImage.dateAdded),
+                        System.currentTimeMillis(),
+                        DateUtils.DAY_IN_MILLIS
+                    ).toString()
+                    //  Log.d(TAG, " dateModified = $mediaStoreImage.dateModified ,dateAdded = ${mediaStoreImage.dateAdded} ${Date(TimeUnit.SECONDS.toMillis(mediaStoreImage.dateAdded))} "  )
+                    if (headerOld != date) {
+                        _imagesList.add(mediaStoreImage)
+                        newList.add(
+                            RecyclerHeader(
+                                text = date
+                            )
+                        )
+                        headerOld = date
+                        spanList.add(3)
+                    }
+                    spanList.add(1)
                     newList.add(
-                        RecyclerHeader(
-                            text = date
+                        CardItem(
+                            id = mediaStoreImage.id.toString(),
+                            image = mediaStoreImage.contentUri,
+                            title = mediaStoreImage.displayName,
+                            description = mediaStoreImage.mimeType,
                         )
                     )
-                    headerOld = date
-                    spanList.add(3)
                 }
-                spanList.add(1)
-                newList.add(
-                    CardItem(
-                        id = mediaStoreImage.id.toString(),
-                        image = mediaStoreImage.contentUri,
-                        title = mediaStoreImage.displayName,
-                        description = mediaStoreImage.mimeType,
-                    )
-                )
-            }
-            _images.postValue(newList)
-            _span.postValue(spanList)
+                _images.value = UiStateHome.Success(images = newList, span = spanList)
+                _span.postValue(spanList)
 
-            if (contentObserver == null) {
-                contentObserver = getApplication<Application>().contentResolver.registerObserver(
-                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                ) {
-                    loadImages()
+                if (contentObserver == null) {
+                    contentObserver =
+                        getApplication<Application>().contentResolver.registerObserver(
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                        ) {
+                            loadImages()
+                        }
                 }
+            } catch (e: CancellationException) {
+                Log.d("dash", " Error -CancellationException- $e")
+                throw e
+            } catch (e: Exception) {
+                Log.d("dash", " Error $e")
+                _images.value = UiStateHome.Error(e.toString())
             }
         }
     }

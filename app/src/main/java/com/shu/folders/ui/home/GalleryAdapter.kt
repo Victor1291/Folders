@@ -1,9 +1,7 @@
 package com.shu.folders.ui.home
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -13,13 +11,12 @@ import com.shu.folders.databinding.CardItemBinding
 import com.shu.folders.databinding.OneLineItem2Binding
 import com.shu.folders.databinding.RecyclerHeaderItemBinding
 import com.shu.folders.databinding.TwoLineItemBinding
-import com.shu.folders.models.MediaStoreImage
 import com.shu.folders.ui.home.model.HasStringId
 
 class GalleryAdapter(
     private val viewHoldersManager: ViewHoldersManager,
     private val clickListener: AdapterClickListenerById,
-   // private val onClick: (MediaStoreImage) -> Unit
+    // private val onClick: (MediaStoreImage) -> Unit
 ) : ListAdapter<HasStringId, GalleryAdapter.DataViewHolder>(BaseDiffCallback()) {
 
     inner class DataViewHolder(
@@ -96,11 +93,11 @@ class BaseDiffCallback : DiffUtil.ItemCallback<HasStringId>() {
 
 /**
  * Basic [RecyclerView.ViewHolder] for our gallery.
- */
+ *//*
 class ImageViewHolder(view: View, onClick: (MediaStoreImage) -> Unit) :
     RecyclerView.ViewHolder(view) {
-    val rootView = view
-    val imageView: ImageView = view.findViewById(R.id.image)
+    private val rootView = view
+    private val imageView: ImageView = view.findViewById(R.id.image)
 
     init {
         imageView.setOnClickListener {
@@ -108,4 +105,4 @@ class ImageViewHolder(view: View, onClick: (MediaStoreImage) -> Unit) :
             onClick(image)
         }
     }
-}
+}*/

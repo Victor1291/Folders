@@ -11,27 +11,38 @@ import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.shu.domain.util.PathUtils
 import com.shu.folders.models.Folder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+sealed interface UiState {
+    data class Success(
+        val folders: List<Folder>,
+    ) : UiState
+
+    data class Error(val message: String) : UiState
+    data object Loading : UiState
+}
+
+
 @HiltViewModel
 class DashboardViewModel @Inject constructor(application: Application) :
     AndroidViewModel(application) {
 
 
-    private val _folders = MutableLiveData<List<Folder>>()
-    val folders: LiveData<List<Folder>> get() = _folders
+    private val _folders = MutableStateFlow<UiState>(UiState.Loading)
+    val folders: StateFlow<UiState> = _folders.asStateFlow()
 
     init {
         loadFolders()
@@ -40,14 +51,15 @@ class DashboardViewModel @Inject constructor(application: Application) :
     private fun loadFolders() {
         viewModelScope.launch {
             try {
-                _folders.postValue(queryFolders())
+                _folders.value = UiState.Loading
+                _folders.value = UiState.Success(queryFolders())
             } catch (e: CancellationException) {
                 Log.d("dash", " Error -CancellationException- $e")
                 throw e
             } catch (e: Exception) {
                 Log.d("dash", " Error $e")
+                _folders.value = UiState.Error(e.toString())
             }
-
         }
     }
 
