@@ -8,13 +8,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.FragmentNavigator
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.shu.folders.databinding.FragmentDashboardBinding
-import com.shu.folders.models.Folder
+import com.shu.folders.models.Images
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -86,6 +85,16 @@ class DashboardFragment : Fragment() {
         name: String
     ) {
 
+        Log.i("toggleButtonStatus", "Name =  $name ")
+        val list = viewModel.getImagesFolder(name)
+        findNavController().navigate(
+            DashboardFragmentDirections.actionNavigationDashboardToFilesFragment(
+                Images(
+                    path = name,
+                    listImages = list ,
+                )
+            )
+        )
     }
 
     override fun onDestroyView() {

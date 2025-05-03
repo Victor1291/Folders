@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.shu.folders.databinding.ItemFolderBinding
 import com.shu.folders.models.Folder
 
@@ -52,7 +53,12 @@ class FolderViewHolder(
         binding.tvDay.text = item.name
 
         binding.tvWorkerOne.text = "${item.count}"
-        binding.tvWorkerTwo.text = item.path
+
+        Glide.with(binding.image)
+            .load(item.artworkUri)
+            .thumbnail(0.33f)
+            .centerCrop()
+            .into(binding.image)
     }
 }
 

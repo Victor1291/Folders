@@ -44,8 +44,19 @@ class DashboardViewModel @Inject constructor(application: Application) :
     private val _folders = MutableStateFlow<UiState>(UiState.Loading)
     val folders: StateFlow<UiState> = _folders.asStateFlow()
 
+    private val mapsImages = mutableMapOf<String, MutableList<Long>>()
+
     init {
         loadFolders()
+    }
+
+    fun getImagesFolder(path: String): List<Long> {
+        val list = mapsImages[path]?.toList() ?: emptyList()
+        mapsImages.forEach { (t, u) ->
+            Log.i("mapsImages", "Name =  $t size ${u.size} ")
+        }
+        Log.i("list", "list =  ${list.size} ")
+        return list
     }
 
     private fun loadFolders() {
@@ -134,26 +145,31 @@ class DashboardViewModel @Inject constructor(application: Application) :
                     val path = c.getString(pathColumn)
                     val size = c.getInt(sizeColumn)
                     val lastModified = c.getLong(lastModifiedColumn) * 1000
-
+                    //  Log.i("vmDash", "path $path")
                     val parent = PathUtils.parent(path).let {
                         if (PathUtils.name(it).startsWith("img", true)) PathUtils.parent(it)
                         else it
                     }
+                    // Log.i("vmDash", "parent $parent")
                     val index = list.indexOfFirst { it.path == parent }
                     if (index == -1) {
                         list += Folder(id, parent, 1, size, lastModified)
+                        mapsImages[parent] = mutableListOf(id)
+                       // Log.i("vmDash", "parent Files $parent  size ${mapsImages[parent]?.size}")
                         continue
                     }
+                    //Находим совпадение имени папки и проверяем старый индекс
                     val old = list[index]
                     val artwork = if (old.lastModified > lastModified) old.artworkID else id
 
                     list[index] = Folder(
-                        artwork,
-                        parent,
-                        old.count + 1,
-                        old.size + size,
-                        maxOf(old.lastModified, lastModified)
+                        artworkID = artwork,
+                        path = parent,
+                        count = old.count + 1,
+                        size = old.size + size,
+                        lastModified = maxOf(old.lastModified, lastModified),
                     )
+                    mapsImages[parent]?.add(id)
                 }
             }
         }

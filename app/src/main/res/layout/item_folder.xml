@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraintLayout"
     style="@style/Platform.MaterialComponents"
     android:layout_width="match_parent"
@@ -10,13 +11,22 @@
     android:layout_marginHorizontal="1.dp"
     android:orientation="vertical">
 
+    <ImageView
+        android:id="@+id/image"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center"
+        tools:ignore="ContentDescription"
+        tools:src="@android:mipmap/sym_def_app_icon" />
+
+
     <TextView
         android:id="@+id/tv_day"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:translationY="-3dp"
         android:layout_gravity="center"
-        android:text="12"
+        android:text="@string/folders_name"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold" />
@@ -30,18 +40,9 @@
         android:layout_height="wrap_content"
         android:elegantTextHeight="false"
         android:layout_gravity="center"
-        android:text="Surnametwo B."
+        android:text="@string/_100_files"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tv_worker_two"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Surnametwo B."
-        android:textSize="16sp"
-        android:textStyle="italic|bold" />
 
 </LinearLayout>

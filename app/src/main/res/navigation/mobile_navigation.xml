@@ -23,7 +23,15 @@
         android:id="@+id/navigation_dashboard"
         android:name="com.shu.folders.ui.dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_dashboard" >
+        <action
+            android:id="@+id/action_navigation_dashboard_to_filesFragment"
+            app:destination="@id/filesFragment"
+            app:enterAnim="@android:anim/fade_in"
+            app:exitAnim="@android:anim/fade_out"
+            app:popEnterAnim="@android:anim/fade_in"
+            app:popExitAnim="@android:anim/fade_out" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_notifications"
@@ -38,5 +46,17 @@
         <argument
             android:name="data"
             app:argType="com.shu.folders.models.ViewPagerItem" />
+    </fragment>
+    <fragment
+        android:id="@+id/filesFragment"
+        android:name="com.shu.folders.ui.files.FilesFragment"
+        android:label="fragment_files"
+        tools:layout="@layout/fragment_files" >
+        <argument
+            android:name="images"
+            app:argType="com.shu.folders.models.Images" />
+        <action
+            android:id="@+id/action_filesFragment_to_navigation_dashboard"
+            app:destination="@id/navigation_dashboard" />
     </fragment>
 </navigation>

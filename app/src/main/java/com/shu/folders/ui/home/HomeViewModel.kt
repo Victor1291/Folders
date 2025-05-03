@@ -369,7 +369,7 @@ class HomeViewModel @Inject constructor(application: Application) : AndroidViewM
                     images += image
 
                     // For debugging, we'll output the image objects we create to logcat.
-                    Log.v(TAG, "Added image: $image")
+                  //  Log.v(TAG, "Added image: $image")
                 }
             }
         }
