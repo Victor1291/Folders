@@ -38,6 +38,13 @@
         android:name="com.shu.folders.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_gallery"
+        android:name="com.shu.folders.ui.notifications.GalleryFragment"
+        android:label="@string/title_gallery"
+        tools:layout="@layout/fragment_gallery" />
+
     <fragment
         android:id="@+id/onBoardingFragment"
         android:name="com.shu.folders.ui.gallery.OnBoardingFragment"

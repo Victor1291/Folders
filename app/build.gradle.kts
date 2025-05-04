@@ -64,6 +64,7 @@ dependencies {
 
     implementation(libs.preferences)
 
+    implementation(libs.okhttp)
     implementation(libs.glide)
 
     testImplementation(libs.junit)
