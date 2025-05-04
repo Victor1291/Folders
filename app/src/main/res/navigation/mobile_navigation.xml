@@ -66,4 +66,14 @@
             android:id="@+id/action_filesFragment_to_navigation_dashboard"
             app:destination="@id/navigation_dashboard" />
     </fragment>
+    <fragment
+        android:id="@+id/navigation_manager"
+        android:name="com.shu.folders.ui.filemanager.ManagerFragment"
+        android:label="fragment_manager"
+        tools:layout="@layout/fragment_manager" />
 </navigation>
+
+
+    <!--android:id="@+id/navigation_manager"
+    in menu also
+    -->

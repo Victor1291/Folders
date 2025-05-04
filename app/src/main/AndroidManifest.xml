@@ -41,7 +41,7 @@
 
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.shu.folders.fileprovider"
+            android:authorities="com.shu.folders.provider"
             android:grantUriPermissions="true"
             android:exported="false">
             <meta-data

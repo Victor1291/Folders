@@ -8,6 +8,7 @@
         android:id="@+id/action_share"
         android:orderInCategory="100"
         android:icon="@drawable/baseline_share_24"
+        android:iconTint="@color/primaryColor"
         android:title="@string/share"
         app:showAsAction="always" />
 
@@ -15,6 +16,7 @@
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:icon="@drawable/baseline_settings_24"
+        android:iconTint="@color/primaryColor"
         android:title="@string/settings"
         app:showAsAction="always" />
 
@@ -22,6 +24,7 @@
         android:id="@+id/action_trash"
         android:orderInCategory="100"
         android:icon="@drawable/baseline_restore_from_trash_24"
+        android:iconTint="@color/primaryColor"
         android:title="@string/trash"
         app:showAsAction="always" />
 
@@ -29,6 +32,7 @@
         android:id="@+id/action_favorite"
         android:orderInCategory="100"
         android:icon="@drawable/baseline_star_border_24"
+        android:iconTint="@color/primaryColor"
         android:title="@string/favorite"
         app:showAsAction="always" />
 
