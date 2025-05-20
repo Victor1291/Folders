@@ -11,7 +11,6 @@ import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
-import androidx.transition.TransitionInflater
 import com.shu.folders.R
 import com.shu.folders.databinding.FragmentOnBoardingBinding
 import com.shu.folders.models.MediaStoreImage
@@ -37,10 +36,10 @@ class OnBoardingFragment : Fragment() {
 
         // ViewCompat.setTransitionName(binding.cardView, "cardView${args.data.position}")
 
-      /*  sharedElementEnterTransition =
-            TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
+        /*  sharedElementEnterTransition =
+              TransitionInflater.from(requireContext()).inflateTransition(android.R.transition.move)
 
-        *//* ChangeBounds().apply {
+          *//* ChangeBounds().apply {
          duration = 750
      }*//*
         sharedElementReturnTransition =

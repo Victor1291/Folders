@@ -68,6 +68,8 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.glide)
 
+    implementation(libs.transformationlayout)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

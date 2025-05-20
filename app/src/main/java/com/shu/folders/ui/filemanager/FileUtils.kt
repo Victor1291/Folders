@@ -16,13 +16,12 @@
 
 package com.shu.folders.ui.filemanager
 
-import com.shu.folders.BuildConfig
 import android.content.Context
 import android.content.Intent
 import android.os.Environment
 import android.webkit.MimeTypeMap
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.shu.folders.BuildConfig
 import com.shu.folders.R
 import java.io.File
 
